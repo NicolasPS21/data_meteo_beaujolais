@@ -1,0 +1,15 @@
+Testing
+-----
+
+SELECT
+  NOM_USUEL,
+  COUNT(*) AS nb
+FROM
+  `ecb-batch1527.silver.1950-2022_4V`
+GROUP BY
+  NOM_USUEL
+HAVING
+  nb>=2
+ORDER BY
+  nb DESC
+
