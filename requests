@@ -13,3 +13,18 @@ HAVING
 ORDER BY
   nb DESC
 
+
+#Creating a view 
+
+SELECT
+  NOM_USUEL as cityname,
+  LAT as latitude,
+  LON as longitude,
+  ALTI as altitude,
+  AAAAMMJJ as year_month_day,
+  RR as mm_precipitation,
+  TX as temp_max,
+  TN as temp_min,
+  TM as temp_mediane,
+  TNTXM AS daily_temp_average,
+FROM `silver.1950-2022_4V`
