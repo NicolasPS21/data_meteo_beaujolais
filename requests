@@ -28,3 +28,48 @@ SELECT
   TM as temp_mediane,
   TNTXM AS daily_temp_average,
 FROM `silver.1950-2022_4V`
+
+
+
+-----
+
+
+WITH weather_table AS (
+  SELECT
+    NOM_USUEL as cityname,
+    LAT as latitude,
+    LON as longitude,
+    ALTI as altitude,
+    AAAAMMJJ as year_month_day_int,
+    DATE(DIV(AAAAMMJJ, 10000), MOD(DIV(AAAAMMJJ, 100), 100), MOD(AAAAMMJJ, 100)) as year_month_day,
+    EXTRACT(YEAR FROM DATE(DIV(AAAAMMJJ, 10000), MOD(DIV(AAAAMMJJ, 100), 100), MOD(AAAAMMJJ, 100))) AS year,
+    EXTRACT(MONTH FROM DATE(DIV(AAAAMMJJ, 10000), MOD(DIV(AAAAMMJJ, 100), 100), MOD(AAAAMMJJ, 100))) AS month,
+    RR as mm_precipitation,
+    TX as temp_max,
+    TN as temp_min,
+    TM as temp_mediane,
+    TNTXM AS daily_temp_average
+  FROM `silver.1950-2022_4V`
+)
+
+SELECT DISTINCT
+  w.cityname,
+  w.latitude,
+  w.longitude,
+  w.altitude,
+  CAST(w.year_month_day_int AS STRING) as year_month_day_str,
+  w.year_month_day,
+  w.year,
+  w.month,
+  w.mm_precipitation,
+  w.temp_max,
+  w.temp_min,
+  w.temp_mediane,
+  w.daily_temp_average,
+  AVG(w.mm_precipitation) OVER (PARTITION BY w.year, w.month) AS average_precipitation_month,
+  AVG(w.temp_max) OVER (PARTITION BY w.year, w.month) AS average_temp_max_month,
+  AVG(w.temp_min) OVER (PARTITION BY w.year, w.month) AS average_temp_min,
+  AVG(w.temp_mediane) OVER (PARTITION BY w.year, w.month) AS average_temp_mediane,
+  AVG(w.daily_temp_average) OVER (PARTITION BY w.year, w.month) AS avg_daily_temp
+FROM weather_table AS w
+ORDER BY w.year_month_day ASC;
