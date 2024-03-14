@@ -73,3 +73,74 @@ SELECT DISTINCT
   AVG(w.daily_temp_average) OVER (PARTITION BY w.year, w.month) AS avg_daily_temp
 FROM weather_table AS w
 ORDER BY w.year_month_day ASC;
+
+
+---
+
+#testing aggro table (cleaning and explorating) + renaming the columns
+
+WITH sub AS(
+  SELECT
+  NOM_USUEL as cityname,
+  LAT as latitude,
+  LON as longitude,
+  ALTI as altitude,
+  CONCAT(SUBSTR(CAST(AAAAMM AS STRING), 1, 4), '-', SUBSTR(CAST(AAAAMM AS STRING), 5, 2)) as year_month,
+  CASE 
+  WHEN NUM_DECADE =1 THEN 01 
+  WHEN NUM_DECADE =2 THEN 11
+  WHEN NUM_DECADE =3 THEN 20
+  END
+  as decade,
+  RR as mm_precipitation,
+  TX as temp_max,
+  TN as temp_min,
+  TSVM as hPa_tens_vapeur,
+  INST as sunny_time,
+  GLOT as sunnypower__J_cm2
+FROM
+  `ecb-batch1527.Ecb_1527.decad_agro_50_22`
+WHERE
+  NOM_USUEL IN ("LYON-BRON",
+    "VAUXRENARD",
+    "MORNANT")
+ORDER BY cityname, year_month
+ )
+
+SELECT
+cityname,
+latitude,	
+longitude,	
+altitude,	
+CAST(CONCAT(year_month,'-', sub.decade) AS date) as date_date,	
+mm_precipitation
+temp_max,
+temp_min,
+hPa_tens_vapeur,
+sunny_time,
+sunnypower__J_cm2,
+FROM sub
+
+
+-- Joining table 
+
+SELECT
+ v.*,
+ p.snow_occurrence,
+ p.sunnypower__J_cm2
+FROM `ecb-batch1527.silver.JOIN_1950_2022`  AS v
+LEFT JOIN `silver.JOIN_autres_params` AS p
+USING (primary_key)
+
+SELECT
+ b.*,
+ a.sunnypower,
+ a.snow_occurrence,
+ a.fog_occurrence,
+ a.lightning,
+ a.grele,
+ a.rosee
+FROM `ecb-batch1527.silver.JOIN_silver_beaujolais`AS b
+LEFT JOIN `silver.JOIN_silver_autres_params` AS a
+USING (join_key);
+
